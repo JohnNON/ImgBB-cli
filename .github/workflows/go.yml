@@ -12,10 +12,9 @@ jobs:
     runs-on: macos-latest
     steps:       
       - name: Setup go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v4.1.0
         with:
-          go-version: 1.21
-          stable: true          
+          go-version: 1.21       
       - name: Cross Build
         run: |
           brew install filosottile/musl-cross/musl-cross
@@ -29,11 +28,10 @@ jobs:
           message: "create tag"
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Release & Assets
-        uses: Hs1r1us/Release-AIO@v1.0
+        uses: Hs1r1us/Release-AIO@v2.0.0
         env: 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name:  ${{ github.event.inputs.tag }} 
           release_name: imgbb-cli ${{ github.event.inputs.tag }} 
-          asset_files: bin/       
-          
+          asset_files: bin/
