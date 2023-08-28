@@ -7,7 +7,7 @@ BINARY = $(BIN_DIR)/imgbb-cli
 SRC = github.com/JohnNON/ImgBB-cli/cmd
 LDFLAGS = -ldflags="-s -w -X main.buildTag=$(TAG) -X main.buildTime=$(TIME) -X main.buildHash=$(HASH)"
 
-all: macos windows linux
+all: macos windows linux zip
 	@echo "complete"
 
 create_dist_dir:
@@ -20,14 +20,13 @@ macos: create_dist_dir
 windows: create_dist_dir
 	GOOS=windows GOARCH=amd64 CGO_ENABLED=1 go build -o $(BINARY)_windows_amd64.exe $(LDFLAGS) $(SRC)
 	GOOS=windows GOARCH=arm64 CGO_ENABLED=1 go build -o $(BINARY)_windows_arm64.exe $(LDFLAGS) $(SRC)
-	GOOS=windows GOARCH=386   CGO_ENABLED=1 go build -o $(BINARY)_windows_386.exe   $(LDFLAGS) $(SRC)
-	GOOS=windows GOARCH=arm   CGO_ENABLED=1 go build -o $(BINARY)_windows_arm.exe   $(LDFLAGS) $(SRC)
 
 linux: create_dist_dir
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build -o $(BINARY)_linux_amd64 $(LDFLAGS) $(SRC)
-	GOOS=linux GOARCH=arm64 CGO_ENABLED=1 go build -o $(BINARY)_linux_arm64 $(LDFLAGS) $(SRC)
-	GOOS=linux GOARCH=386   CGO_ENABLED=1 go build -o $(BINARY)_linux_386   $(LDFLAGS) $(SRC)
-	GOOS=linux GOARCH=arm   CGO_ENABLED=1 go build -o $(BINARY)_linux_arm   $(LDFLAGS) $(SRC)
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-linux-gnu-gcc  go build -o $(BINARY)_linux_amd64 $(LDFLAGS) $(SRC)
+	GOOS=linux GOARCH=arm64 CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc go build -o $(BINARY)_linux_arm64 $(LDFLAGS) $(SRC)
+
+zip:
+	@for f in $(shell ls ${BIN_DIR}); do zip ${BIN_DIR}/$${f}.zip ${BIN_DIR}/$${f} && rm ${BIN_DIR}/$${f}; done
 
 clean:
 	rm -rfd $(BIN_DIR)
