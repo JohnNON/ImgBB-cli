@@ -22,7 +22,7 @@ const (
 	yamlOut = "yaml"
 )
 
-var supportedFormats = []string{"jpeg", "jpg", "png", "bmp", "gif", "tiff", "webp", "heic", "pdf"}
+var supportedFormats = []string{".jpeg", ".jpg", ".png", ".bmp", ".gif", ".tiff", ".webp", ".heic", ".pdf"}
 
 type Option func(u *Uploader)
 
@@ -157,7 +157,7 @@ func (u *Uploader) uploadFromPath(ctx context.Context, paths []string) {
 					u.uploadFromPath(ctx, []string{filepath.Join(path, entry.Name())})
 				}
 
-				if !checkFormat(entry.Name()) {
+				if !checkFileFormat(entry.Name()) {
 					continue
 				}
 
@@ -186,10 +186,14 @@ func (u *Uploader) uploadFromPath(ctx context.Context, paths []string) {
 	}
 }
 
-func checkFormat(name string) bool {
-	info := strings.Split(name, ".")
+func checkFileFormat(file string) bool {
+	return slices.Contains[[]string, string](supportedFormats, getFileExtension(file))
+}
 
-	return slices.Contains[[]string, string](supportedFormats, strings.ToLower(info[len(info)-1]))
+func getFileExtension(file string) string {
+	info := strings.Split(file, ".")
+
+	return fmt.Sprintf(".%s", strings.ToLower(info[len(info)-1]))
 }
 
 func (u *Uploader) createImg(source string) (*imgBB.Image, error) {
@@ -205,7 +209,7 @@ func (u *Uploader) createImg(source string) (*imgBB.Image, error) {
 		name := filepath.Base(source)
 
 		if u.generate {
-			name = hashSum(data)
+			name = fmt.Sprintf("%s%s", hashSum(data), getFileExtension(name))
 		}
 
 		return imgBB.NewImageFromFile(name, u.ttl, data)
